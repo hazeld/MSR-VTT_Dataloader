@@ -64,6 +64,7 @@ class MSRVTTFULL_multi_sentence_dataLoader(Dataset):
         self.video_dict = video_dict
         self.sample_len = 0
         self.sentences_dict = {}
+        self.all_sentences_dict = {}
         self.cut_off_points = [] # used to tag the label when calculate the metric
         pre_video_name = None
         for item in self.data['sentences']:
@@ -75,6 +76,9 @@ class MSRVTTFULL_multi_sentence_dataLoader(Dataset):
                     self.cut_off_points.append(len(self.sentences_dict))
                 cap_txt = item['caption']
                 self.sentences_dict[len(self.sentences_dict)] = (item['video_id'], cap_txt)
+                if item['video_id'] not in self.all_sentences_dict.keys():
+                    self.all_sentences_dict[item['video_id']] = []
+                self.all_sentences_dict[item['video_id']].append(cap_txt)
         self.cut_off_points.append(len(self.sentences_dict))
 
         # usd for multi-sentence retrieval
@@ -88,7 +92,7 @@ class MSRVTTFULL_multi_sentence_dataLoader(Dataset):
             print("For {}, video number: {}".format(self.subset, self.video_num))
 
         print("Video number: {}".format(len(self.video_dict)))
-        print("Total Paire: {}".format(len(self.sentences_dict)))
+        print("Total Pairs: {}".format(len(self.sentences_dict)))
 
         # length of dataloader for one epoch
         self.sample_len = len(self.sentences_dict)
@@ -224,6 +228,6 @@ class MSRVTTFULL_multi_sentence_dataLoader(Dataset):
 
         #obtain video data
         video, video_mask = self._get_rawvideo(video_id)
-
-        return pairs_text, pairs_mask, pairs_segment, video, video_mask
+        all_captions = self.all_sentences_dict[video_id]
+        return pairs_text, pairs_mask, pairs_segment, video, video_mask, caption, all_captions
 

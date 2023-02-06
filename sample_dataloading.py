@@ -25,8 +25,6 @@ DATALOADER_DICT["msrvttfull"] = {"train":dataloader_msrvtt_train,
                                  "val":dataloader_msrvttfull_test,
                                  "test":dataloader_msrvttfull_test}
 
-
-
 def main():
 
     # obtain the hyper-parameter
@@ -40,13 +38,17 @@ def main():
     test_dataloader, test_length = DATALOADER_DICT[args.datatype]["test"](args, tokenizer)
 
     for bid, batch in enumerate(test_dataloader):
-        text_ids, text_mask, segment_ids, video, video_mask = batch
+        text_ids, text_mask, segment_ids, video, video_mask, caption, all_captions = batch
 
-        print(text_ids.shape)
-        print(text_mask.shape)
-        print(segment_ids.shape)
-        print(video.shape)
-        print(video_mask.shape)
+        all_captions = np.array(all_captions).transpose()
+        print('Tokenized text: ', text_ids.shape)
+        print('Tokenized text mask: ', text_mask.shape)
+        print('Type of tokenized text: ', segment_ids.shape)
+        print('Sampled frames: ', video.shape)
+        print('Mask of sampled frames: ', video_mask.shape)
+        print('All captions: ', all_captions.shape)
+        print(caption[0])
+        print(all_captions[0])
         exit(0)
 
 

@@ -172,8 +172,7 @@ class MSRVTT_single_sentence_dataLoader(Dataset):
 
         #obtain video data
         video, video_mask = self._get_rawvideo(video_id)
-
-        return pairs_text, pairs_mask, pairs_segment, video, video_mask
+        return pairs_text, pairs_mask, pairs_segment, video, video_mask, sentence, [sentence]
 
 
 
@@ -217,10 +216,13 @@ class MSRVTT_multi_sentence_dataLoader(Dataset):
         # store the pairs for video and text
         train_video_ids = list(self.csv['video_id'].values)
         self.sentences_dict = {}
+        self.all_sentences_dict = {}
         for itm in self.data['sentences']:
             if itm['video_id'] in train_video_ids:
                 self.sentences_dict[len(self.sentences_dict)] = (itm['video_id'], itm['caption'])
-
+                if itm['video_id'] not in self.all_sentences_dict.keys():
+                    self.all_sentences_dict[itm['video_id']] = []
+                self.all_sentences_dict[itm['video_id']].append(itm['caption'])
         # set the length of paris for one epoch
         self.sample_len = len(self.sentences_dict)
 
@@ -355,6 +357,5 @@ class MSRVTT_multi_sentence_dataLoader(Dataset):
 
         #obtain video data
         video, video_mask = self._get_rawvideo(video_id)
-
-        return pairs_text, pairs_mask, pairs_segment, video, video_mask
-
+        all_captions = self.all_sentences_dict[video_id]
+        return pairs_text, pairs_mask, pairs_segment, video, video_mask, caption, [all_captions]
